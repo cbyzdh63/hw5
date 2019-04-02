@@ -1,0 +1,160 @@
+1.1
+i=imread('test1.pgm');
+i_d=im2double(i);%图像转换为double型
+i_f=fft2(i_d);
+[x,y]=size(i);
+di=distmatrix(x,y);
+D0=35;n=3;
+h_b=1./(1+(di./D0).^(2*n));
+subplot(2,2,1),imshow(i),title('original image');
+subplot(2,2,2),imshow(log(1+abs(fftshift(i_f))),[]),title('dft original image');
+subplot(2,2,3),mesh(fftshift(di)),title(' distance matrix');
+subplot(2,2,4),imshow(fftshift(h_b)),title(' butterworth low past');
+filt_f=h_b.*i_f;
+filt_i=real(ifft2(filt_f));
+figure,subplot(1,2,1),imshow(log(1+abs(fftshift(filt_f))),[]),title('filt dft original image');
+subplot(1,2,2),imshow(filt_i),title(' filt original image');
+
+M,N]=size(g);  
+nn=2;           % 二阶巴特沃斯(Butterworth)低通滤波器  
+d0=30;  
+m=floor(M/2); n=floor(N/2);  
+for i=1:M  
+       for j=1:N  
+           d=sqrt((i-m)^2+(j-n)^2);  
+           h=1/(1+0.414*(d/d0)^(2*nn));  % 计算低通滤波器传递函数  
+           result(i,j)=h*g(i,j);  
+       end  
+end  
+ figure(2);  
+subplot(1,2,2);imshow(log(1+abs(result)),[]);  
+title('butterworth低通滤波 D0=50 n=2');  
+result=ifftshift(result);  
+J2=ifft2(result);  
+J3=uint8(real(J2));  
+subplot(1,2,1),imshow(J3);                      % 显示滤波处理后的图像  
+title('低通滤波图 D0=50 n=2');  
+s=0; s1=0;
+for i=1:M
+    for j=1:N
+        s=s+abs(g(i,j)^2);
+    end
+end                                    %计算功率谱比
+
+for i=1:M
+    for j=1:N
+        s1=s1+abs(result(i,j)^2);
+    end
+end
+l=s1/s
+
+1.2
+i=imread('test1.pgm');
+i_d=im2double(i);%图像转换为double型
+i_f=fft2(i_d);
+[x,y]=size(i);
+di=distmatrix(x,y);
+sigma=30;
+h_g=exp(-(di.^2)/(2*(sigma^2)));
+subplot(2,2,1),imshow(i),title('original image');
+subplot(2,2,2),imshow(log(1+abs(fftshift(i_f))),[]),title('dft original image');
+subplot(2,2,3),mesh(fftshift(di)),title(' distance matrix');
+subplot(2,2,4),imshow(fftshift(h_g)),title(' gaussian low past');
+filt_f=h_g.*i_f;
+filt_i=real(ifft2(filt_f));
+figure,subplot(1,2,1),imshow(log(1+abs(fftshift(filt_f))),[]),title('filt dft original image');
+subplot(1,2,2),imshow(filt_i),title('gaussian filt original image');
+i_p=periodogram(i_d)；
+spectrum=mean(i_p(:))
+
+[M,N]=size(g);             
+d0=30;  %   高斯低通滤波器 
+m=floor(M/2); n=floor(N/2);  
+for i=1:M  
+       for j=1:N  
+           d=sqrt((i-m)^2+(j-n)^2);  
+           h=(exp(-(d^2)/(2*d0*d0)));  % 计算低通滤波器传递函数  
+           result(i,j)=h*g(i,j);  
+       end  
+end  
+ figure(2);  
+subplot(1,2,2);imshow(log(1+abs(result)),[]);  
+title('高斯低通滤波 D0=10 ');  
+result=ifftshift(result);  
+J2=ifft2(result);  
+J3=uint8(real(J2));  
+subplot(1,2,1),imshow(J3);                      % 显示滤波处理后的图像  
+title('低通滤波图 D0=10 ');  
+s=0; s1=0;
+for i=1:M
+    for j=1:N
+        s=s+abs(g(i,j)^2);
+    end
+end                                    %计算功率谱比
+
+for i=1:M
+    for j=1:N
+        s1=s1+abs(result(i,j)^2);
+    end
+end
+l=s1/s
+
+
+2.1
+i=imread('test1.pgm');
+i_d=im2double(i);%图像转换为double型
+i_f=fft2(i_d);
+[x,y]=size(i);
+di=distmatrix(x,y);
+cutoff=30;order=2;
+H_but=1./(1+(cutoff./di).^(2*order));
+H_but_hfe=1+(1.*H_but);
+figure,mesh(fftshift(H_but_hfe)),zlim([0 2]),title('Butterworth high-pass filter');
+DFT_filter_but=H_but_hfe.*i_f;
+I4=real(ifft2(DFT_filter_but));
+subplot(2,2,1),imshow(i),title('Original Image');
+subplot(2,2,2),imshow(log(1+abs(fftshift(i_f))),[]),title('FT of the original image');
+subplot(2,2,3),imshow(log(1+abs(fftshift(DFT_filter_but))),[]),title('Filtered FT');
+subplot(2,2,4),imshow(I4),title('Filtered Image');
+i_p=periodogram(I4)
+spectrum=mean(i_p(:))
+
+
+2.2
+i=imread('test1.pgm');
+i_d=im2double(i);%图像转换为double型
+i_f=fft2(i_d);
+[x,y]=size(i);
+di=distmatrix(x,y);
+sigma=30;
+H_gau=1-exp(-(di.^2)/(2*(sigma^2)));
+H_gau_hfe=1+(1.*H_gau);
+figure,mesh(fftshift(H_gau_hfe)),zlim([0 2]),title('Gaussian high-pass filter');
+DFT_filter_gau=H_gau_hfe.*i_f;
+I3=real(ifft2(DFT_filter_gau));
+subplot(2,2,1),imshow(i),title('Original Image');
+subplot(2,2,2),imshow(log(1+abs(fftshift(i_f))),[]),title('FT of the original image');
+subplot(2,2,3),imshow(log(1+abs(fftshift(DFT_filter_gau))),[]),title('Filtered FT');
+subplot(2,2,4),imshow(I3),title('Filtered Image');
+i_p=periodogram(I3)
+spectrum=mean(i_p(:))
+
+3.1
+i=imread('test4 copy.bmp');
+subplot(1,2,1),imshow(i),title('original image')
+h=fspecial('laplacian',0);
+i_lap0=edge(i,'zerocross',0,h);
+i_lapm=edge(i,'zerocross',h);
+%subplot(1,3,2),imshow(i_lap0),title('0laplacian image')
+subplot(1,2,2),imshow(i_lapm),title('laplacian image')
+ 
+3.2
+i=imread('test4 copy.bmp');
+dim=fspecial('average',5);
+idim=imfilter(i,dim);
+subplot(1,3,1),imshow(i);title('original image')
+subplot(1,3,2),imshow(idim);title('blurred image')
+idim_ad=imadjust(idim,stretchlim(idim),[0,0.4]);
+i_sharp=imsubtract(i,idim_ad);
+I=imadjust(i_sharp);
+subplot(1,3,3),imshow(I),title('sharp image');
